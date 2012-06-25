@@ -117,6 +117,11 @@ gboolean ges_timeline_layer_get_auto_transition (GESTimelineLayer * layer);
 void ges_timeline_layer_set_auto_transition (GESTimelineLayer * layer,
 					     gboolean auto_transition);
 
+const gchar* ges_timeline_layer_get_title (GESTimelineLayer * layer);
+
+void ges_timeline_layer_set_title (GESTimelineLayer * layer,
+                                   const gchar* title);
+
 GList*   ges_timeline_layer_get_objects   (GESTimelineLayer * layer);
 
 G_END_DECLS

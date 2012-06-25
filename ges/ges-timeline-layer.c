@@ -52,6 +52,8 @@ struct _GESTimelineLayerPrivate
   guint32 priority;             /* The priority of the layer within the
                                  * containing timeline */
   gboolean auto_transition;
+
+  gchar *title;
 };
 
 enum
@@ -59,6 +61,7 @@ enum
   PROP_0,
   PROP_PRIORITY,
   PROP_AUTO_TRANSITION,
+  PROP_TITLE,
   PROP_LAST
 };
 
@@ -85,6 +88,9 @@ ges_timeline_layer_get_property (GObject * object, guint property_id,
     case PROP_AUTO_TRANSITION:
       g_value_set_boolean (value, layer->priv->auto_transition);
       break;
+    case PROP_TITLE:
+      g_value_set_string (value, layer->priv->title);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
   }
@@ -103,6 +109,9 @@ ges_timeline_layer_set_property (GObject * object, guint property_id,
     case PROP_AUTO_TRANSITION:
       ges_timeline_layer_set_auto_transition (layer,
           g_value_get_boolean (value));
+      break;
+    case PROP_TITLE:
+      ges_timeline_layer_set_title (layer, g_value_get_string (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -157,6 +166,15 @@ ges_timeline_layer_class_init (GESTimelineLayerClass * klass)
           "whether the transitions are added", FALSE, G_PARAM_READWRITE));
 
   /**
+   * GESTimelineLayer:title
+   *
+   * Sets the title of the layer
+   */
+  g_object_class_install_property (object_class, PROP_TITLE,
+      g_param_spec_string ("title", "Title",
+          "The title of the layer", "", G_PARAM_READWRITE));
+
+  /**
    * GESTimelineLayer::object-added
    * @layer: the #GESTimelineLayer
    * @object: the #GESTimelineObject that was added.
@@ -191,6 +209,7 @@ ges_timeline_layer_init (GESTimelineLayer * self)
 
   self->priv->priority = 0;
   self->priv->auto_transition = FALSE;
+  self->priv->title = NULL;
   self->min_gnl_priority = 0;
   self->max_gnl_priority = LAYER_HEIGHT;
 }
@@ -801,7 +820,6 @@ void
 ges_timeline_layer_set_auto_transition (GESTimelineLayer * layer,
     gboolean auto_transition)
 {
-
   g_return_if_fail (GES_IS_TIMELINE_LAYER (layer));
 
   if (auto_transition && layer->timeline)
@@ -824,6 +842,37 @@ ges_timeline_layer_get_priority (GESTimelineLayer * layer)
   g_return_val_if_fail (GES_IS_TIMELINE_LAYER (layer), 0);
 
   return layer->priv->priority;
+}
+
+/**
+ * ges_timeline_layer_set_title:
+ * @layer: a #GESTimelineLayer
+ * @title: the title of the layer
+ *
+ * Sets the title of the layer to the given @title.
+ */
+void
+ges_timeline_layer_set_title (GESTimelineLayer * layer, const gchar * title)
+{
+  g_return_if_fail (GES_IS_TIMELINE_LAYER (layer));
+
+  layer->priv->title = g_strdup (title ? title : "");
+}
+
+/**
+ * ges_timeline_layer_get_title:
+ * @layer: a #GESTimelineLayer
+ *
+ * Get the title of @layer.
+ *
+ * Returns: The title of the @layer.
+ */
+const gchar *
+ges_timeline_layer_get_title (GESTimelineLayer * layer)
+{
+  g_return_val_if_fail (GES_IS_TIMELINE_LAYER (layer), NULL);
+
+  return layer->priv->title;
 }
 
 /**
