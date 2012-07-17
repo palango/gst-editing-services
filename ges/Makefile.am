@@ -49,7 +49,8 @@ libges_@GST_MAJORMINOR@_la_SOURCES = 		\
 	ges-pitivi-formatter.c			\
 	ges-utils.c \
 	ges-material.c \
-	ges-material-source.c 
+	ges-material-source.c \
+	ges-extractable.c 
 
 libges_@GST_MAJORMINOR@includedir = $(includedir)/gstreamer-@GST_MAJORMINOR@/ges/
 libges_@GST_MAJORMINOR@include_HEADERS = 	\
@@ -95,7 +96,8 @@ libges_@GST_MAJORMINOR@include_HEADERS = 	\
 	ges-pitivi-formatter.h			\
 	ges-utils.h \
 	ges-material.h \
-	ges-material-source.h
+	ges-material-source.h \
+	ges-extractable.h
 
 noinst_HEADERS = \
 	ges-internal.h
