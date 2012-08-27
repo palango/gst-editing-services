@@ -471,15 +471,6 @@ CREATE_GETTER (float, gfloat *);
  */
 CREATE_GETTER (double, gdouble *);
 
-static inline gchar *
-_gst_strdup0 (const gchar * s)
-{
-  if (s == NULL || *s == '\0')
-    return NULL;
-
-  return g_strdup (s);
-}
-
 /**
  * ges_metadata_container_get_string:
  * @container: Target container
@@ -491,7 +482,7 @@ _gst_strdup0 (const gchar * s)
 CREATE_GETTER (string, gchar **);
 
 /**
- * ges_metadata_container_copy_value:
+ * ges_metadata_container_get_value:
  * @container: Target container
  * @metadata_item: Name of the metadata item to get
  * @dest: Destination to which value of metadata item will be copied
