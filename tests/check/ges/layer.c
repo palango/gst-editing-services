@@ -342,6 +342,8 @@ GST_START_TEST (test_layer_metadata_string)
   layer = ges_timeline_layer_new ();
   ges_timeline_add_layer (timeline, layer);
 
+  ges_metadata_register ("ges-test", G_TYPE_STRING, "", "");
+
   ges_metadata_container_set_string (GES_METADATA_CONTAINER (layer),
       "ges-test", "blub");
 
@@ -364,6 +366,8 @@ GST_START_TEST (test_layer_metadata_boolean)
   timeline = ges_timeline_new_audio_video ();
   layer = ges_timeline_layer_new ();
   ges_timeline_add_layer (timeline, layer);
+
+  ges_metadata_register ("ges-test", G_TYPE_BOOLEAN, "", "");
 
   ges_metadata_container_set_boolean (GES_METADATA_CONTAINER (layer),
       "ges-test", TRUE);
@@ -388,6 +392,8 @@ GST_START_TEST (test_layer_metadata_int)
   layer = ges_timeline_layer_new ();
   ges_timeline_add_layer (timeline, layer);
 
+  ges_metadata_register ("ges-test", G_TYPE_INT, "", "");
+
   ges_metadata_container_set_int (GES_METADATA_CONTAINER (layer),
       "ges-test", 1234);
 
@@ -410,6 +416,8 @@ GST_START_TEST (test_layer_metadata_uint)
   timeline = ges_timeline_new_audio_video ();
   layer = ges_timeline_layer_new ();
   ges_timeline_add_layer (timeline, layer);
+
+  ges_metadata_register ("ges-test", G_TYPE_UINT, "", "");
 
   ges_metadata_container_set_uint (GES_METADATA_CONTAINER (layer),
       "ges-test", 42);
@@ -434,6 +442,8 @@ GST_START_TEST (test_layer_metadata_int64)
   layer = ges_timeline_layer_new ();
   ges_timeline_add_layer (timeline, layer);
 
+  ges_metadata_register ("ges-test", G_TYPE_INT64, "", "");
+
   ges_metadata_container_set_int64 (GES_METADATA_CONTAINER (layer),
       "ges-test", 1234);
 
@@ -456,6 +466,8 @@ GST_START_TEST (test_layer_metadata_uint64)
   timeline = ges_timeline_new_audio_video ();
   layer = ges_timeline_layer_new ();
   ges_timeline_add_layer (timeline, layer);
+
+  ges_metadata_register ("ges-test", G_TYPE_UINT64, "", "");
 
   ges_metadata_container_set_uint64 (GES_METADATA_CONTAINER (layer),
       "ges-test", 42);
@@ -480,6 +492,8 @@ GST_START_TEST (test_layer_metadata_float)
   layer = ges_timeline_layer_new ();
   ges_timeline_add_layer (timeline, layer);
 
+  ges_metadata_register ("ges-test", G_TYPE_FLOAT, "", "");
+
   ges_metadata_container_set_float (GES_METADATA_CONTAINER (layer),
       "ges-test", 23.456);
 
@@ -502,6 +516,8 @@ GST_START_TEST (test_layer_metadata_double)
   timeline = ges_timeline_new_audio_video ();
   layer = ges_timeline_layer_new ();
   ges_timeline_add_layer (timeline, layer);
+
+  ges_metadata_register ("ges-test", G_TYPE_DOUBLE, "", "");
 
   ges_metadata_container_set_double (GES_METADATA_CONTAINER (layer),
       "ges-test", 23.456);
@@ -527,6 +543,8 @@ GST_START_TEST (test_layer_metadata_date)
   timeline = ges_timeline_new_audio_video ();
   layer = ges_timeline_layer_new ();
   ges_timeline_add_layer (timeline, layer);
+
+  ges_metadata_register ("ges-test", G_TYPE_DATE, "", "");
 
   input = g_date_new_dmy (1, 1, 2012);
 
@@ -556,6 +574,8 @@ GST_START_TEST (test_layer_metadata_date_time)
   timeline = ges_timeline_new_audio_video ();
   layer = ges_timeline_layer_new ();
   ges_timeline_add_layer (timeline, layer);
+
+  ges_metadata_register ("ges-test", GST_TYPE_DATE_TIME, "", "");
 
   input = gst_date_time_new_from_unix_epoch_local_time (123456789);
 
@@ -589,6 +609,8 @@ GST_START_TEST (test_layer_metadata_value)
   layer = ges_timeline_layer_new ();
   ges_timeline_add_layer (timeline, layer);
 
+  ges_metadata_register ("ges-test-value", G_TYPE_VALUE, "", "");
+
   g_value_init (&data, G_TYPE_STRING);
   g_value_set_string (&data, "Hello world!");
 
@@ -620,6 +642,9 @@ GST_START_TEST (test_layer_metadata_foreach)
   timeline = ges_timeline_new_audio_video ();
   layer = ges_timeline_layer_new ();
   ges_timeline_add_layer (timeline, layer);
+
+  ges_metadata_register ("some-string", G_TYPE_STRING, "", "");
+  ges_metadata_register ("some-int", G_TYPE_INT, "", "");
 
   ges_metadata_container_set_string (GES_METADATA_CONTAINER (layer),
       "some-string", "some-content");
