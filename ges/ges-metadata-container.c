@@ -84,13 +84,7 @@ tag_list_foreach (const GstTagList * taglist, const gchar * tag,
     gpointer user_data)
 {
   MetadataForeachData *data = (MetadataForeachData *) user_data;
-
-  GValue value = { 0, };
-
-  if (!gst_tag_list_copy_value (&value, taglist, tag))
-    return;
-
-  data->func (data->container, tag, &value, data->data);
+  data->func (data->container, tag, data->data);
 }
 
 /**

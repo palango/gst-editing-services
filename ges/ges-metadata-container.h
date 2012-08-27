@@ -155,7 +155,6 @@ ges_metadata_container_get_value       (GESMetadataContainer * container,
 typedef void
 (*GESMetadataForeachFunc)              (const GESMetadataContainer *container,
                                         const gchar *key,
-                                        GValue *value,
                                         gpointer user_data);
 
 void
