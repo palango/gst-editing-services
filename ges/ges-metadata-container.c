@@ -375,6 +375,9 @@ ges_metadata_container_new_from_string (const gchar * str)
  * @blurb: a human-readable description for this tag (string constant)
  *
  * Registers a new tag type for the use with GES.
+ *
+ * See <link linkend="gst-GstTagList">GstTagList</link> for a list of
+ * already available tags.
  */
 void
 ges_metadata_register (const gchar * name, GType type, const gchar * nick,
