@@ -11,16 +11,12 @@
 */
 
 static GQuark ges_taglist_key;
-
-typedef struct
-{
-  GstTagMergeMode mode;
-  GstTagList *list;
-} GESMetadata;
+static GstTagMergeMode merge_mode;
 
 G_DEFINE_INTERFACE_WITH_CODE (GESMetadataContainer, ges_metadata_container,
     G_TYPE_OBJECT, ges_taglist_key =
-    g_quark_from_static_string ("ges-metadata-container-data"););
+    g_quark_from_static_string ("ges-metadata-container-data");
+    merge_mode = GST_TAG_MERGE_KEEP;);
 
 static void
 ges_metadata_container_default_init (GESMetadataContainerInterface * iface)
@@ -28,32 +24,18 @@ ges_metadata_container_default_init (GESMetadataContainerInterface * iface)
 
 }
 
-static void
-ges_metadata_free (gpointer p)
+static GstTagList *
+ges_metadata_container_get_taglist (GESMetadataContainer * container)
 {
-  GESMetadata *data = (GESMetadata *) p;
+  GstTagList *list;
 
-  if (data->list)
-    gst_tag_list_unref (data->list);
-
-  g_slice_free (GESMetadata, data);
-}
-
-static GESMetadata *
-ges_metadata_container_get_data (GESMetadataContainer * container)
-{
-  GESMetadata *data;
-
-  data = g_object_get_qdata (G_OBJECT (container), ges_taglist_key);
-  if (!data) {
-    data = g_slice_new (GESMetadata);
-    data->list = gst_tag_list_new_empty ();
-    data->mode = GST_TAG_MERGE_KEEP;
-    g_object_set_qdata_full (G_OBJECT (container), ges_taglist_key, data,
-        ges_metadata_free);
+  list = g_object_get_qdata (G_OBJECT (container), ges_taglist_key);
+  if (!list) {
+    list = gst_tag_list_new_empty ();
+    g_object_set_qdata (G_OBJECT (container), ges_taglist_key, list);
   }
 
-  return data;
+  return list;
 }
 
 typedef struct
@@ -84,19 +66,19 @@ void
 ges_metadata_container_foreach (GESMetadataContainer * container,
     GESMetadataForeachFunc func, gpointer user_data)
 {
-  GESMetadata *data;
+  GstTagList *list;
   MetadataForeachData foreach_data;
 
   g_return_if_fail (GES_IS_METADATA_CONTAINER (container));
   g_return_if_fail (func != NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
   foreach_data.func = func;
   foreach_data.container = container;
   foreach_data.data = user_data;
 
-  gst_tag_list_foreach (data->list, (GstTagForeachFunc) tag_list_foreach,
+  gst_tag_list_foreach (list, (GstTagForeachFunc) tag_list_foreach,
       &foreach_data);
 }
 
@@ -111,14 +93,14 @@ void
 ges_metadata_container_set_boolean (GESMetadataContainer * container,
     const gchar * metadata_item, gboolean value)
 {
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_if_fail (GES_IS_METADATA_CONTAINER (container));
   g_return_if_fail (metadata_item != NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
+  gst_tag_list_add (list, merge_mode, metadata_item, value, NULL);
 }
 
 /**
@@ -132,14 +114,14 @@ void
 ges_metadata_container_set_int (GESMetadataContainer * container,
     const gchar * metadata_item, gint value)
 {
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_if_fail (GES_IS_METADATA_CONTAINER (container));
   g_return_if_fail (metadata_item != NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
+  gst_tag_list_add (list, merge_mode, metadata_item, value, NULL);
 }
 
 /**
@@ -153,14 +135,14 @@ void
 ges_metadata_container_set_uint (GESMetadataContainer * container,
     const gchar * metadata_item, guint value)
 {
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_if_fail (GES_IS_METADATA_CONTAINER (container));
   g_return_if_fail (metadata_item != NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
+  gst_tag_list_add (list, merge_mode, metadata_item, value, NULL);
 }
 
 /**
@@ -174,14 +156,14 @@ void
 ges_metadata_container_set_int64 (GESMetadataContainer * container,
     const gchar * metadata_item, gint64 value)
 {
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_if_fail (GES_IS_METADATA_CONTAINER (container));
   g_return_if_fail (metadata_item != NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
+  gst_tag_list_add (list, merge_mode, metadata_item, value, NULL);
 }
 
 /**
@@ -195,14 +177,14 @@ void
 ges_metadata_container_set_uint64 (GESMetadataContainer * container,
     const gchar * metadata_item, guint64 value)
 {
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_if_fail (GES_IS_METADATA_CONTAINER (container));
   g_return_if_fail (metadata_item != NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
+  gst_tag_list_add (list, merge_mode, metadata_item, value, NULL);
 }
 
 /**
@@ -216,14 +198,14 @@ void
 ges_metadata_container_set_float (GESMetadataContainer * container,
     const gchar * metadata_item, gfloat value)
 {
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_if_fail (GES_IS_METADATA_CONTAINER (container));
   g_return_if_fail (metadata_item != NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
+  gst_tag_list_add (list, merge_mode, metadata_item, value, NULL);
 }
 
 /**
@@ -237,14 +219,14 @@ void
 ges_metadata_container_set_double (GESMetadataContainer * container,
     const gchar * metadata_item, gdouble value)
 {
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_if_fail (GES_IS_METADATA_CONTAINER (container));
   g_return_if_fail (metadata_item != NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
+  gst_tag_list_add (list, merge_mode, metadata_item, value, NULL);
 }
 
 /**
@@ -258,14 +240,14 @@ void
 ges_metadata_container_set_date (GESMetadataContainer * container,
     const gchar * metadata_item, const GDate * value)
 {
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_if_fail (GES_IS_METADATA_CONTAINER (container));
   g_return_if_fail (metadata_item != NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
+  gst_tag_list_add (list, merge_mode, metadata_item, value, NULL);
 }
 
 /**
@@ -279,14 +261,14 @@ void
 ges_metadata_container_set_date_time (GESMetadataContainer * container,
     const gchar * metadata_item, const GstDateTime * value)
 {
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_if_fail (GES_IS_METADATA_CONTAINER (container));
   g_return_if_fail (metadata_item != NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
+  gst_tag_list_add (list, merge_mode, metadata_item, value, NULL);
 }
 
 /**
@@ -300,14 +282,14 @@ void
 ges_metadata_container_set_string (GESMetadataContainer * container,
     const gchar * metadata_item, const gchar * value)
 {
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_if_fail (GES_IS_METADATA_CONTAINER (container));
   g_return_if_fail (metadata_item != NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
+  gst_tag_list_add (list, merge_mode, metadata_item, value, NULL);
 }
 
 /**
@@ -321,14 +303,14 @@ void
 ges_metadata_container_set_value (GESMetadataContainer * container,
     const gchar * metadata_item, const GValue * value)
 {
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_if_fail (GES_IS_METADATA_CONTAINER (container));
   g_return_if_fail (metadata_item != NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  gst_tag_list_add_value (data->list, data->mode, metadata_item, value);
+  gst_tag_list_add_value (list, merge_mode, metadata_item, value);
 }
 
 /**
@@ -343,13 +325,13 @@ ges_metadata_container_set_value (GESMetadataContainer * container,
 gchar *
 ges_metadata_container_to_string (GESMetadataContainer * container)
 {
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_val_if_fail (GES_IS_METADATA_CONTAINER (container), NULL);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  return gst_tag_list_to_string (data->list);
+  return gst_tag_list_to_string (list);
 }
 
 /**
@@ -376,7 +358,7 @@ ges_metadata_container_new_from_string (const gchar * str)
  *
  * Registers a new tag type for the use with GES.
  *
- * See <link linkend="gst-GstTagList">GstTagList</link> for a list of
+ * See <link linkend="gstreamer-GstTagList">GstTagList</link> for a list of
  * already available tags.
  */
 void
@@ -399,15 +381,15 @@ gboolean                                                                 \
 ges_metadata_container_get_ ## name (GESMetadataContainer *container,    \
                            const gchar *metadata_item, type value)       \
 {                                                                        \
-  GESMetadata *data;                                                     \
+  GstTagList *list;                                                      \
                                                                          \
   g_return_val_if_fail (GES_IS_METADATA_CONTAINER (container), FALSE);   \
   g_return_val_if_fail (metadata_item != NULL, FALSE);                   \
   g_return_val_if_fail (value != NULL, FALSE);                           \
                                                                          \
-  data = ges_metadata_container_get_data (container);                    \
+  list = ges_metadata_container_get_taglist (container);                 \
                                                                          \
-  return gst_tag_list_get_ ## name (data->list, metadata_item, value);   \
+  return gst_tag_list_get_ ## name (list, metadata_item, value);         \
 }
 
 /**
@@ -496,16 +478,15 @@ gboolean
 ges_metadata_container_get_value (GESMetadataContainer * container,
     const gchar * tag, GValue * value)
 {
-  //GValue v = G_VALUE_INIT;
-  GESMetadata *data;
+  GstTagList *list;
 
   g_return_val_if_fail (GES_IS_METADATA_CONTAINER (container), FALSE);
   g_return_val_if_fail (tag != NULL, FALSE);
   g_return_val_if_fail (value != NULL, FALSE);
 
-  data = ges_metadata_container_get_data (container);
+  list = ges_metadata_container_get_taglist (container);
 
-  if (!gst_tag_list_copy_value (value, data->list, tag))
+  if (!gst_tag_list_copy_value (value, list, tag))
     return FALSE;
 
   return (value != NULL);
