@@ -16,11 +16,7 @@ typedef struct
 {
   GstTagMergeMode mode;
   GstTagList *list;
-  GMutex lock;
 } GESMetadata;
-
-#define GES_METADATA_LOCK(data) g_mutex_lock(&data->lock)
-#define GES_METADATA_UNLOCK(data) g_mutex_unlock(&data->lock)
 
 G_DEFINE_INTERFACE_WITH_CODE (GESMetadataContainer, ges_metadata_container,
     G_TYPE_OBJECT, ges_taglist_key =
@@ -40,8 +36,6 @@ ges_metadata_free (gpointer p)
   if (data->list)
     gst_tag_list_unref (data->list);
 
-  g_mutex_clear (&data->lock);
-
   g_slice_free (GESMetadata, data);
 }
 
@@ -52,21 +46,11 @@ ges_metadata_container_get_data (GESMetadataContainer * container)
 
   data = g_object_get_qdata (G_OBJECT (container), ges_taglist_key);
   if (!data) {
-    /* make sure no other thread is creating a GstTagData at the same time */
-    static GMutex create_mutex; /* no initialisation required */
-    g_mutex_lock (&create_mutex);
-
-    data = g_object_get_qdata (G_OBJECT (container), ges_taglist_key);
-    if (!data) {
-      data = g_slice_new (GESMetadata);
-      g_mutex_init (&data->lock);
-      data->list = gst_tag_list_new_empty ();
-      data->mode = GST_TAG_MERGE_KEEP;
-      g_object_set_qdata_full (G_OBJECT (container), ges_taglist_key, data,
-          ges_metadata_free);
-    }
-
-    g_mutex_unlock (&create_mutex);
+    data = g_slice_new (GESMetadata);
+    data->list = gst_tag_list_new_empty ();
+    data->mode = GST_TAG_MERGE_KEEP;
+    g_object_set_qdata_full (G_OBJECT (container), ges_taglist_key, data,
+        ges_metadata_free);
   }
 
   return data;
@@ -134,10 +118,8 @@ ges_metadata_container_set_boolean (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  GES_METADATA_LOCK (data);
   ges_metadata_register (metadata_item, G_TYPE_BOOLEAN);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
-  GES_METADATA_UNLOCK (data);
 }
 
 /**
@@ -158,10 +140,8 @@ ges_metadata_container_set_int (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  GES_METADATA_LOCK (data);
   ges_metadata_register (metadata_item, G_TYPE_INT);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
-  GES_METADATA_UNLOCK (data);
 }
 
 /**
@@ -182,10 +162,8 @@ ges_metadata_container_set_uint (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  GES_METADATA_LOCK (data);
   ges_metadata_register (metadata_item, G_TYPE_UINT);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
-  GES_METADATA_UNLOCK (data);
 }
 
 /**
@@ -206,10 +184,8 @@ ges_metadata_container_set_int64 (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  GES_METADATA_LOCK (data);
   ges_metadata_register (metadata_item, G_TYPE_INT64);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
-  GES_METADATA_UNLOCK (data);
 }
 
 /**
@@ -230,10 +206,8 @@ ges_metadata_container_set_uint64 (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  GES_METADATA_LOCK (data);
   ges_metadata_register (metadata_item, G_TYPE_UINT64);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
-  GES_METADATA_UNLOCK (data);
 }
 
 /**
@@ -254,10 +228,8 @@ ges_metadata_container_set_float (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  GES_METADATA_LOCK (data);
   ges_metadata_register (metadata_item, G_TYPE_FLOAT);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
-  GES_METADATA_UNLOCK (data);
 }
 
 /**
@@ -278,10 +250,8 @@ ges_metadata_container_set_double (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  GES_METADATA_LOCK (data);
   ges_metadata_register (metadata_item, G_TYPE_DOUBLE);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
-  GES_METADATA_UNLOCK (data);
 }
 
 /**
@@ -302,10 +272,8 @@ ges_metadata_container_set_date (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  GES_METADATA_LOCK (data);
   ges_metadata_register (metadata_item, G_TYPE_DATE);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
-  GES_METADATA_UNLOCK (data);
 }
 
 /**
@@ -326,10 +294,8 @@ ges_metadata_container_set_date_time (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  GES_METADATA_LOCK (data);
   ges_metadata_register (metadata_item, GST_TYPE_DATE_TIME);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
-  GES_METADATA_UNLOCK (data);
 }
 
 /**
@@ -350,10 +316,8 @@ ges_metadata_container_set_string (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  GES_METADATA_LOCK (data);
   ges_metadata_register (metadata_item, G_TYPE_STRING);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
-  GES_METADATA_UNLOCK (data);
 }
 
 /**
@@ -374,10 +338,8 @@ ges_metadata_container_set_value (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  GES_METADATA_LOCK (data);
   ges_metadata_register (metadata_item, G_TYPE_STRING);
   gst_tag_list_add_value (data->list, data->mode, metadata_item, value);
-  GES_METADATA_UNLOCK (data);
 }
 
 /**
