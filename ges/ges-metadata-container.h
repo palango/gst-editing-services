@@ -170,7 +170,9 @@ ges_metadata_container_new_from_string (const gchar *str);
 
 void
 ges_metadata_register                  (const gchar *name,
-                                        GType type);
+                                        GType type,
+                                        const gchar *nick,
+                                        const gchar *blurb);
 
 G_END_DECLS
 #endif /* _GES_METADATA_CONTAINER */

@@ -118,7 +118,6 @@ ges_metadata_container_set_boolean (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  ges_metadata_register (metadata_item, G_TYPE_BOOLEAN);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
 }
 
@@ -140,7 +139,6 @@ ges_metadata_container_set_int (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  ges_metadata_register (metadata_item, G_TYPE_INT);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
 }
 
@@ -162,7 +160,6 @@ ges_metadata_container_set_uint (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  ges_metadata_register (metadata_item, G_TYPE_UINT);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
 }
 
@@ -184,7 +181,6 @@ ges_metadata_container_set_int64 (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  ges_metadata_register (metadata_item, G_TYPE_INT64);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
 }
 
@@ -206,7 +202,6 @@ ges_metadata_container_set_uint64 (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  ges_metadata_register (metadata_item, G_TYPE_UINT64);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
 }
 
@@ -228,7 +223,6 @@ ges_metadata_container_set_float (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  ges_metadata_register (metadata_item, G_TYPE_FLOAT);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
 }
 
@@ -250,7 +244,6 @@ ges_metadata_container_set_double (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  ges_metadata_register (metadata_item, G_TYPE_DOUBLE);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
 }
 
@@ -272,7 +265,6 @@ ges_metadata_container_set_date (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  ges_metadata_register (metadata_item, G_TYPE_DATE);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
 }
 
@@ -294,7 +286,6 @@ ges_metadata_container_set_date_time (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  ges_metadata_register (metadata_item, GST_TYPE_DATE_TIME);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
 }
 
@@ -316,7 +307,6 @@ ges_metadata_container_set_string (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  ges_metadata_register (metadata_item, G_TYPE_STRING);
   gst_tag_list_add (data->list, data->mode, metadata_item, value, NULL);
 }
 
@@ -338,7 +328,6 @@ ges_metadata_container_set_value (GESMetadataContainer * container,
 
   data = ges_metadata_container_get_data (container);
 
-  ges_metadata_register (metadata_item, G_TYPE_STRING);
   gst_tag_list_add_value (data->list, data->mode, metadata_item, value);
 }
 
@@ -378,10 +367,25 @@ ges_metadata_container_new_from_string (const gchar * str)
   return NULL;
 }
 
+/**
+ * ges_metadata_register:
+ * @name: the name or identifier string (string constant)
+ * @type: the type this data is in
+ * @nick: human-readable name or short description (string constant)
+ * @blurb: a human-readable description for this tag (string constant)
+ *
+ * Registers a new tag type for the use with GES.
+ */
 void
-ges_metadata_register (const gchar * name, GType type)
+ges_metadata_register (const gchar * name, GType type, const gchar * nick,
+    const gchar * blurb)
 {
-  gst_tag_register (name, GST_TAG_FLAG_META, type, name, name, NULL);
+  g_return_if_fail (name != NULL);
+  g_return_if_fail (nick != NULL);
+  g_return_if_fail (blurb != NULL);
+  g_return_if_fail (type != 0 && type != GST_TYPE_LIST);
+
+  gst_tag_register (name, GST_TAG_FLAG_META, type, nick, blurb, NULL);
 }
 
 /* Copied from gsttaglist.c */
