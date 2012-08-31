@@ -70,6 +70,7 @@ static gboolean load_from_uri (GESFormatter * formatter, GESTimeline *
     timeline, const gchar * uri);
 static gboolean save_to_uri (GESFormatter * formatter, GESTimeline *
     timeline, const gchar * uri);
+static gboolean uri_writeable (const gchar * uri);
 static gboolean default_can_load_uri (const gchar * uri);
 static gboolean default_can_save_uri (const gchar * uri);
 static void discovery_error_cb (GESTimeline * timeline,
@@ -225,6 +226,46 @@ ges_formatter_can_load_uri (const gchar * uri)
   return TRUE;
 }
 
+static gboolean
+uri_writeable (const gchar * uri)
+{
+  GFile *file = g_file_new_for_uri (uri);
+  GFile *dir = NULL;
+  GFileInfo *info = NULL;
+  GError *error = NULL;
+
+  if (g_file_query_file_type (file, G_FILE_QUERY_INFO_NONE, NULL)
+      == G_FILE_TYPE_DIRECTORY) {
+    dir = file;
+  } else if (g_file_has_parent (file, NULL)) {
+    dir = g_file_get_parent (file);
+  } else {
+    return FALSE;
+  }
+
+  info = g_file_query_info (file, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
+      G_FILE_QUERY_INFO_NONE, NULL, &error);
+
+  if (error != NULL) {
+    GST_ERROR ("Unable to write to directory: %s", error->message);
+    g_error_free (error);
+    return FALSE;
+  } else {
+    gboolean writeable = g_file_info_get_attribute_boolean (info,
+        G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
+    if (!writeable) {
+      GST_ERROR ("Unable to write to directory");
+      return FALSE;
+    }
+  }
+
+  g_object_unref (file);
+  g_object_unref (dir);
+  g_object_unref (info);
+
+  return TRUE;
+}
+
 /**
  * ges_formatter_can_save_uri:
  * @uri: a #gchar * pointing to a URI
@@ -245,8 +286,12 @@ ges_formatter_can_save_uri (const gchar * uri)
 
   if (!(gst_uri_has_protocol (uri, "file"))) {
     gchar *proto = gst_uri_get_protocol (uri);
-    GST_ERROR ("Unspported protocol '%s'", proto);
+    GST_ERROR ("Unsupported protocol '%s'", proto);
     g_free (proto);
+    return FALSE;
+  }
+
+  if (!(uri_writeable (uri))) {
     return FALSE;
   }
 
